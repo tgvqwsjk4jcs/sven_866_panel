@@ -34,6 +34,11 @@ f_h=12; // height of holes
 f_off=24; // between holes centers offset
 f_off_from_bottom=43;
 
+power_in_d=3;
+power_ex_d=9;
+power_h=6;
+power_off=23;
+
 module round_cube(h=def_h, w=def_w, l=def_l, r=def_r) {
  translate([r,r,0]) { // move to center by one side
   linear_extrude(height=h) {
@@ -141,6 +146,14 @@ translate([0,f_off,0]) big_hole();
 translate([0,2*f_off,0]) big_hole();
 }
 
+module power_hole() {
+ difference() {
+  cylinder(h=power_h,d=power_ex_d);
+  translate([0,0,-3]) cylinder(h=power_h+3,d=power_in_d);
+ }
+}
+
+
 module holes_to_cut(h=f_h*4,d=f_in_d2) {
 cylinder(h=h,d=d);
 translate([0,f_off,0]) cylinder(h=h,d=d);
@@ -162,7 +175,10 @@ translate([0,0,-f_h/2]) in_solid_panel(); }
 
 module holes_minus_panel() {
  difference() {
-  translate([0,f_off_from_bottom,def_h]) holes();
+  union() { // big holes and power hole
+   translate([0,f_off_from_bottom,def_h]) holes();
+   translate([0,power_off,def_h+1.5]) power_hole();
+  }
   translate([0,0,f_h/2]) holes_cutting_panel();
  }
 }
@@ -178,10 +194,15 @@ module front_panel() {
  }
 }
 
+module main() {
 difference() {
  union() {
   translate([def_w/2,0,4]) holes_minus_panel();
   front_panel();
  }
  translate([-20,99,-3]) cube([2*def_w,50,def_h+3]);
+ translate([def_w/2,power_off,0]) cylinder(d=power_in_d,h=4*f_h);
 }
+}
+
+main();
