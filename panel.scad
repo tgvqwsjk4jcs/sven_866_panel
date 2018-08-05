@@ -11,6 +11,8 @@ s_hole_1_y_off=5.2;
 s_hole_2_x_off=5.2; //same
 s_hole_2_y_off=49.5; //same
 
+s_hole_internal_d=7; // for making holes in platform
+
 module round_cube(h=def_h, w=def_w, l=def_l, r=def_r) {
  translate([r,r,0]) { // move to center by one side
   linear_extrude(height=h) {
@@ -57,19 +59,33 @@ module cuted_hole(w=3*def_r,d=def_r,h=2*def_h) {
 }
 
 module pl_1_with_holes() {
- pl_1();
-// bottom holes
-// translate([s_hole_1_x_off,s_hole_1_y_off,0]) small_hole();
-translate([s_hole_1_x_off,s_hole_1_y_off,0])
-rotate([0,0,180]) cuted_hole();
-translate([def_w-s_hole_1_x_off,s_hole_1_y_off,0])
-rotate([0,0,180]) cuted_hole();
+ union() {
+  // making holes in platform
+  difference() {
+   pl_1();
+   translate([s_hole_1_x_off,s_hole_1_y_off,0]) // first clock wise
+    cylinder(d=s_hole_internal_d,h=2*def_h);
+   translate([def_w-s_hole_1_x_off,s_hole_1_y_off,0])
+    cylinder(d=s_hole_internal_d,h=2*def_h);
+   translate([s_hole_2_x_off,s_hole_2_y_off,0])
+    cylinder(d=s_hole_internal_d,h=2*def_h);
+   translate([def_w-s_hole_2_x_off,s_hole_2_y_off,0])
+    cylinder(d=s_hole_internal_d,h=2*def_h);
+  } // holes making in pl1
+
+  // placing holes
+  // bottom holes
+  translate([s_hole_1_x_off,s_hole_1_y_off,0])
+   rotate([0,0,180]) cuted_hole();
+  translate([def_w-s_hole_1_x_off,s_hole_1_y_off,0])
+   rotate([0,0,180]) cuted_hole();
 
 // top small holes
- translate([s_hole_2_x_off,s_hole_2_y_off,0])
-  rotate([0,0,90]) color("red") cuted_hole();
- translate([def_w-s_hole_2_x_off,s_hole_2_y_off,0])
-  rotate([0,0,-90]) color("red") cuted_hole();
-}
+  translate([s_hole_2_x_off,s_hole_2_y_off,0])
+   rotate([0,0,90]) cuted_hole();
+  translate([def_w-s_hole_2_x_off,s_hole_2_y_off,0])
+   rotate([0,0,-90]) cuted_hole();
+ } // union
+} // module
 
 pl_1_with_holes();
