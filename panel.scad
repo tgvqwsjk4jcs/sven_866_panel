@@ -2,7 +2,7 @@ $fn=50;
 
 def_h=6.3;
 def_w=67.5;
-def_l=105;
+def_l=109; // not precise, not really needed
 def_r=5.5;
 def_wall_size=2.2;
 
@@ -13,15 +13,16 @@ s_hole_2_y_off=49.5; //same
 
 s_hole_internal_d=7; // for making holes in platform
 
-b_c_d=16; // bottom cylinder diameter
-t_c_d=81; // top cylinder diameter
 
-front_length=120; //
+front_l=120; //
 front_h=10;
 front_h_max=20;
 
-// for front panel hull from big circle
-big_rad=(front_h*front_h+(t_c_d*t_c_d/4))/front_h_max;
+// front panel
+small_rad=8;
+small_d=small_rad*2;
+top_d=81;
+big_rad=(front_h*front_h+(top_d*top_d/4))/front_h_max;
 big_d=2*big_rad;
 
 
@@ -52,9 +53,9 @@ module pl_1(h=def_h, w=def_w, l=def_l, r=def_r, off=def_wall_size) {
 
 module hole(in_d1=3, in_d2=7, ex_d=11, h=def_h, low_h=def_wall_size) { 
  difference() {
-  cylinder(h=h, d=ex_d, center=yes); // outside one
-  translate([0,0,low_h]) cylinder(h=h, d=in_d2, center=yes);
-  translate([0,0,-3]) cylinder(h=h+5, d=in_d1, center=yes);
+  cylinder(h=h, d=ex_d); // outside one
+  translate([0,0,low_h]) cylinder(h=h, d=in_d2);
+  translate([0,0,-3]) cylinder(h=h+5, d=in_d1);
  };
 };
 
@@ -103,16 +104,16 @@ module pl_1_with_holes() {
  } // union
 } // module
 
-//pl_1_with_holes();
 
-module small_c() {
-cylinder(h=front_h,d=b_c_d);
+module small_c(h=front_h,d=small_d) {
+ cylinder(h,d=d);
 }
 
 module big_c() {
-cylinder(h=front_h,d=t_c_d);
+cylinder(h=front_h,d=top_d);
 }
 
+// first try
 module circle_part_for_hull() {
  difference() {
   cylinder(h=10,d=big_d);
@@ -122,13 +123,18 @@ module circle_part_for_hull() {
 
 //translate([def_w/2,9,0])
 
-
-hull() {
-small_c();
-translate([(t_c_d-b_c_d)/2, front_length, 0]) small_c();
-translate([-(t_c_d-b_c_d)/2, front_length, 0]) small_c();
+module solid_panel(l=front_l,w=top_d,d=small_d) {
+ hull() {
+  small_c(d=d);
+  translate([0,l-d,front_h_max-front_h]) small_c(d=1);
+  translate([(w-1)/2, l, 0]) small_c(d=1);
+  translate([-(w-1)/2, l, 0]) small_c(d=1);
+ }
 }
 
-translate([0,front_length+8,-(big_rad-18)]) rotate([0,90,90]) circle_part_for_hull();
-
-//translate([0,front_length+10,-(big_rad-18)]) rotate([90,0,0]) circle_part_for_hull();
+//pl_1_with_holes();
+//translate([def_w/2,9,def_h]) solid_panel();
+solid_panel();
+color("red") solid_panel(l=front_l-def_wall_size,
+ w=top_d-2*def_wall_size,
+ d=(small_rad-def_wall_size)*2);
