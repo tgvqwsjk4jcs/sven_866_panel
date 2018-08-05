@@ -14,7 +14,8 @@ s_hole_2_y_off=49.5; //same
 s_hole_internal_d=7; // for making holes in platform
 
 
-front_l=120; //
+front_l=120;
+front_w=81;
 front_h=10;
 front_h_max=20;
 
@@ -105,36 +106,29 @@ module pl_1_with_holes() {
 } // module
 
 
-module small_c(h=front_h,d=small_d) {
- cylinder(h,d=d);
-}
-
-module big_c() {
-cylinder(h=front_h,d=top_d);
-}
-
-// first try
-module circle_part_for_hull() {
- difference() {
-  cylinder(h=10,d=big_d);
-  translate([-(big_rad-10),-big_rad,-front_h]) cube(big_d);
- }
-}
-
 //translate([def_w/2,9,0])
 
-module solid_panel(l=front_l,w=top_d,d=small_d) {
+module solid_panel(l=front_l,
+ w=front_w,
+ d=small_d,
+ h=front_h,
+ h_max=front_h_max) {
+
+ smallest_d=1;
  hull() {
-  small_c(d=d);
-  translate([0,l-d,front_h_max-front_h]) small_c(d=1);
-  translate([(w-1)/2, l, 0]) small_c(d=1);
-  translate([-(w-1)/2, l, 0]) small_c(d=1);
+  cylinder(h=h,d=d);
+  translate([0,l-d,h_max-h]) cylinder(h=h,d=smallest_d);
+  translate([(w-1)/2, l, 0]) cylinder(h=h,d=smallest_d);
+  translate([-(w-1)/2, l, 0]) cylinder(h=h,d=smallest_d);
  }
 }
 
 //pl_1_with_holes();
 //translate([def_w/2,9,def_h]) solid_panel();
+difference() {
 solid_panel();
-color("red") solid_panel(l=front_l-def_wall_size,
+translate([0,0,-3]) solid_panel(l=front_l-def_wall_size,
  w=top_d-2*def_wall_size,
- d=(small_rad-def_wall_size)*2);
+ d=(small_rad-def_wall_size)*2,
+ h=front_h+3);
+}
