@@ -26,7 +26,13 @@ top_d=81;
 big_rad=(front_h*front_h+(top_d*top_d/4))/front_h_max;
 big_d=2*big_rad;
 
-
+// front panel holes
+f_ex_d=18;
+f_in_d1=7;
+f_in_d2=15;
+f_h=12; // height of holes
+f_off=24; // between holes centers offset
+f_off_from_bottom=43;
 
 module round_cube(h=def_h, w=def_w, l=def_l, r=def_r) {
  translate([r,r,0]) { // move to center by one side
@@ -64,8 +70,6 @@ module hole(in_d1=3, in_d2=7, ex_d=11, h=def_h, low_h=def_wall_size) {
 module small_hole() {
  hole(in_d1=3, in_d2=7, ex_d=11);
 }
-
-//translate([0,0,-15]) cube([def_w,def_l,10], center=yes);
 
 // cutting external hole radius
 module cuted_hole(w=3*def_r,d=def_r,h=2*def_h) {
@@ -123,12 +127,61 @@ module solid_panel(l=front_l,
  }
 }
 
-//pl_1_with_holes();
-//translate([def_w/2,9,def_h]) solid_panel();
-difference() {
-solid_panel();
-translate([0,0,-3]) solid_panel(l=front_l-def_wall_size,
+
+module big_hole(d1=f_in_d1,
+ d2=f_in_d2,
+ ex_d=f_ex_d,
+ h=f_h) {
+ hole(in_d1=d1, in_d2=d2, ex_d=ex_d, h=h);
+}
+
+module holes() {
+big_hole();
+translate([0,f_off,0]) big_hole();
+translate([0,2*f_off,0]) big_hole();
+}
+
+module holes_to_cut(h=f_h*4,d=f_in_d2) {
+cylinder(h=h,d=d);
+translate([0,f_off,0]) cylinder(h=h,d=d);
+translate([0,2*f_off,0]) cylinder(h=h,d=d);
+}
+
+module in_solid_panel() {
+solid_panel(l=front_l-def_wall_size,
  w=top_d-2*def_wall_size,
  d=(small_rad-def_wall_size)*2,
  h=front_h+3);
+}
+
+module holes_cutting_panel() {
+difference() {
+solid_panel();
+translate([0,0,-f_h/2]) in_solid_panel(); }
+}
+
+module holes_minus_panel() {
+ difference() {
+  translate([0,f_off_from_bottom,def_h]) holes();
+  translate([0,0,f_h/2]) holes_cutting_panel();
+ }
+}
+
+module front_panel() {
+ difference() {
+  union() {
+   pl_1_with_holes();
+   translate([def_w/2,small_rad+1,def_h]) solid_panel();
+  }
+  translate([def_w/2,small_rad+1,def_h-3]) in_solid_panel();
+  translate([def_w/2,f_off_from_bottom,0]) holes_to_cut();
+ }
+}
+
+difference() {
+ union() {
+  translate([def_w/2,0,4]) holes_minus_panel();
+  front_panel();
+ }
+ translate([-20,99,-3]) cube([2*def_w,50,def_h+3]);
 }
