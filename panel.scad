@@ -13,6 +13,19 @@ s_hole_2_y_off=49.5; //same
 
 s_hole_internal_d=7; // for making holes in platform
 
+b_c_d=16; // bottom cylinder diameter
+t_c_d=81; // top cylinder diameter
+
+front_length=120; //
+front_h=10;
+front_h_max=20;
+
+// for front panel hull from big circle
+big_rad=(front_h*front_h+(t_c_d*t_c_d/4))/front_h_max;
+big_d=2*big_rad;
+
+
+
 module round_cube(h=def_h, w=def_w, l=def_l, r=def_r) {
  translate([r,r,0]) { // move to center by one side
   linear_extrude(height=h) {
@@ -51,6 +64,8 @@ module small_hole() {
 }
 
 //translate([0,0,-15]) cube([def_w,def_l,10], center=yes);
+
+// cutting external hole radius
 module cuted_hole(w=3*def_r,d=def_r,h=2*def_h) {
  difference() {
   small_hole(); 
@@ -88,4 +103,32 @@ module pl_1_with_holes() {
  } // union
 } // module
 
-pl_1_with_holes();
+//pl_1_with_holes();
+
+module small_c() {
+cylinder(h=front_h,d=b_c_d);
+}
+
+module big_c() {
+cylinder(h=front_h,d=t_c_d);
+}
+
+module circle_part_for_hull() {
+ difference() {
+  cylinder(h=10,d=big_d);
+  translate([-(big_rad-10),-big_rad,-front_h]) cube(big_d);
+ }
+}
+
+//translate([def_w/2,9,0])
+
+
+hull() {
+small_c();
+translate([(t_c_d-b_c_d)/2, front_length, 0]) small_c();
+translate([-(t_c_d-b_c_d)/2, front_length, 0]) small_c();
+}
+
+translate([0,front_length+8,-(big_rad-18)]) rotate([0,90,90]) circle_part_for_hull();
+
+//translate([0,front_length+10,-(big_rad-18)]) rotate([90,0,0]) circle_part_for_hull();
