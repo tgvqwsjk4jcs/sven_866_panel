@@ -1,4 +1,4 @@
-$fn=50;
+$fn=100;
 
 def_h=6.3;
 def_w=67.5;
@@ -14,7 +14,7 @@ s_hole_2_y_off=49.5; //same
 s_hole_internal_d=7; // for making holes in platform
 
 
-front_l=120;
+front_l=109;
 front_w=81;
 front_h=10;
 front_h_max=20;
@@ -164,7 +164,7 @@ module in_solid_panel() {
 solid_panel(l=front_l-def_wall_size,
  w=top_d-2*def_wall_size,
  d=(small_rad-def_wall_size)*2,
- h=front_h+3);
+ h=front_h);
 }
 
 module holes_cutting_panel() {
